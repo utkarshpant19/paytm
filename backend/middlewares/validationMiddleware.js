@@ -1,5 +1,5 @@
 const zod = require('zod');
-const { userSignupSchema, userSigninSchema } = require('../schemas/userSchema');
+const { userSignupSchema, userSigninSchema, changePasswordSchema } = require('../schemas/userSchema');
 const { User } = require('../db');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = require('../config');
@@ -60,11 +60,12 @@ const signInValidation = async function (req, res, next) {
 const changePassword = async function(req, res, next){
 
 
-    const {updatedFirstName, updatedLastName, updatedPassword} = req.body;
-    const {success} = zod.safeParse({
-        updatedFirstName,
-        updatedLastName,
-        updatedPassword
+    const {firstName, lastName, username,  password} = req.body;
+    const {success} = changePasswordSchema.safeParse({
+        updatedFirstName: firstName,
+        updatedLastName: lastName,
+        updatedPassword: password,
+        updatedUsername: username 
     }) 
 
     if(!success){
@@ -78,15 +79,15 @@ const changePassword = async function(req, res, next){
 
 const authMiddleware = async function (req, res, next) {
 
-    const { authHeader } = req.headers;
+    const { authorization } = req.headers;
 
-    if(!authHeader || !authHeader.startsWith('Bearer')){
+    if(!authorization || !authorization.startsWith('Bearer')){
         return res.status(411).json({
-            message: "Incorrect Token"
+            message: "Authentication error"
         })
     }
 
-    const token = authHeader.split(' ')[1];
+    const token = authorization.split(' ')[1];
 
     // verify token
     try {

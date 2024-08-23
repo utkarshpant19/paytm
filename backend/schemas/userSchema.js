@@ -14,7 +14,15 @@ const userSigninSchema = z.object({
 
 });
 
+const changePasswordSchema = z.object({
+    updatedFirstName: z.string().max(50).optional(),
+    updatedLastName: z.string().max(50).optional(),
+    updatedPassword: z.string().min(6).optional(),
+    updatedUsername: z.string().min(6).optional()
+})
+
 module.exports ={
     userSignupSchema,
-    userSigninSchema
+    userSigninSchema,
+    changePasswordSchema
 }

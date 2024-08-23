@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { Schema } = require('zod');
 
 const dbUrl = 'mongodb+srv://utkarshpant1994:KfHsTyvVIrYtgG2g@cluster0.hep5gr7.mongodb.net/paytmApp';
 
@@ -31,7 +32,21 @@ const userSchema = new mongoose.Schema({
     }
 });
 
+// Account Schema
+const accountSchema = new mongoose.Schema({
+
+    userId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    } 
+    ,
+    balance: {type: Number, required: true},
+    
+})
+
 // Create a model from Schema
 const User = mongoose.model('user', userSchema);
+const Account = mongoose.model('account', accountSchema);
 
-module.exports = {User}
+module.exports = {User, Account}
