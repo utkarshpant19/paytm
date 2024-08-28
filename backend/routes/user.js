@@ -45,13 +45,28 @@ userRouter.post("/signin", signInValidation, async function (req, res) {
   const { username, password } = req.body;
   const user = await User.findOne({ username, password });
 
+  try{
   // Verify the jwt token
   if (user._id) {
+    console.log('User ',user);
     const token = jsonwebtoken.sign({ userId: user._id }, JWT_SECRET);
+    const accountDetails = await Account.findOne({ userId: user._id })
+    console.log('User account details ',accountDetails);
     return res.json({
-      token,
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        balance: accountDetails.balance
+      },
+      token
     });
   }
+}
+catch(e){
+  return res.status(401).json({
+    message: "Something went Wrong"
+  })
+}
 });
 
 userRouter.put("/", authMiddleware, changePassword, async function (req, res) {
@@ -77,7 +92,7 @@ userRouter.put("/", authMiddleware, changePassword, async function (req, res) {
 
 userRouter.get('/bulk', authMiddleware, async (req, res)=>{
 
-    const search = req.query.filter;
+    const search = req.query.filter ? req.query.filter: "";
     console.log(search);
 
     const users = await User.find({
@@ -103,7 +118,8 @@ userRouter.get('/bulk', authMiddleware, async (req, res)=>{
        user: users.map((user)=>({
         firstName: user.firstName,
         lastName: user.lastName,
-        username: user.username
+        username: user.username,
+        userId: user._id
        }))
     })
 })
